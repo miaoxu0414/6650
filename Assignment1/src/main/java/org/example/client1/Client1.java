@@ -1,6 +1,7 @@
 package org.example.client1;
 
 import org.example.model.LiftRide;
+import org.example.constant.ClientConstants;
 import com.google.gson.Gson;
 
 import java.io.OutputStream;
@@ -12,15 +13,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client1 {
-    private static final int TOTAL_REQUESTS = 200000;
-    private static final int INITIAL_THREADS = 32;
-    private static final int MAX_RETRIES = 5;
-    private static final String SERVER_URL = "http://34.217.28.9:8080/Assignment1-1.0-SNAPSHOT/skiers";
-
     private static final AtomicInteger successfulRequests = new AtomicInteger(0);
     private static final AtomicInteger failedRequests = new AtomicInteger(0);
     private static final Gson gson = new Gson();
-    private static final BlockingQueue<LiftRide> queue = new LinkedBlockingQueue<>(TOTAL_REQUESTS);
+    private static final BlockingQueue<LiftRide> queue = new LinkedBlockingQueue<>(ClientConstants.TOTAL_REQUESTS);
 
     public static void main(String[] args) throws InterruptedException {
         long startTime = System.currentTimeMillis();
@@ -29,10 +25,10 @@ public class Client1 {
         generateLiftRideEvents();
 
         // Create thread pool
-        ExecutorService executor = Executors.newFixedThreadPool(INITIAL_THREADS);
+        ExecutorService executor = Executors.newFixedThreadPool(ClientConstants.THREADS_INITIAL);
 
         // Submit worker threads
-        for (int i = 0; i < INITIAL_THREADS; i++) {
+        for (int i = 0; i < ClientConstants.THREADS_INITIAL; i++) {
             executor.submit(Client1::processRequests);
         }
 
@@ -57,7 +53,7 @@ public class Client1 {
      */
     private static void generateLiftRideEvents() {
         Random random = new Random();
-        for (int i = 0; i < TOTAL_REQUESTS; i++) {
+        for (int i = 0; i < ClientConstants.TOTAL_REQUESTS; i++) {
             LiftRide liftRide = new LiftRide(
                     random.nextInt(100000) + 1, // skierID: 1-100000
                     random.nextInt(10) + 1,     // resortID: 1-10
@@ -81,7 +77,7 @@ public class Client1 {
             }
 
             int statusCode = sendRequest(liftRide);
-            if (statusCode == 201) {
+            if (statusCode == HttpURLConnection.HTTP_CREATED) {
                 successfulRequests.incrementAndGet();
             } else {
                 failedRequests.incrementAndGet();
@@ -91,13 +87,13 @@ public class Client1 {
 
     /**
      * Sends a POST request with the given LiftRide object.
-     * Implements retries up to 5 times in case of failure.
+     * Implements retries up to MAX_RETRIES in case of failure.
      */
     private static int sendRequest(LiftRide liftRide) {
-        for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        for (int attempt = 1; attempt <= ClientConstants.MAX_RETRIES; attempt++) {
             HttpURLConnection connection = null;
             try {
-                URL url = new URL(SERVER_URL);
+                URL url = new URL(ClientConstants.SERVER_URL);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("POST");
                 connection.setRequestProperty("Content-Type", "application/json");
@@ -114,7 +110,7 @@ public class Client1 {
 
                 // Get response code
                 int responseCode = connection.getResponseCode();
-                if (responseCode == 201) {
+                if (responseCode == HttpURLConnection.HTTP_CREATED) {
                     return responseCode;
                 } else {
                     System.err.println("Attempt " + attempt + " failed with response code: " + responseCode);
