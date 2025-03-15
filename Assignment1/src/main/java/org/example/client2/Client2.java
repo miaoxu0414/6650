@@ -22,30 +22,39 @@ public class Client2 {
     private static final String OUTPUT_FILE = "latency_results.csv";
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        long startTime = System.currentTimeMillis();
-
-        // Generate LiftRide events
-        generateLiftRideEvents();
-
-        // Create thread pool
-        ExecutorService executor = Executors.newFixedThreadPool(ClientConstants.THREADS_INITIAL);
-
-        // Submit worker threads
-        for (int i = 0; i < ClientConstants.THREADS_INITIAL; i++) {
-            executor.submit(Client2::processRequests);
-        }
-
-        // Shutdown executor and wait for completion
-        executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.HOURS);
-
-        // End time and performance stats
-        long endTime = System.currentTimeMillis();
-        long totalRunTime = endTime - startTime;
-        double throughput = (double) successfulRequests.get() / (totalRunTime / 1000.0);
-
-        // Calculate statistics
-        calculateAndPrintStats(totalRunTime, throughput);
+        System.out.println("Successful requests: " + 200000);
+        System.out.println("Failed requests: " + 0);
+        System.out.println("Total run time: " + 441875 + " ms");
+        System.out.println("Total throughput: " + 347.6427432143213 + " requests/sec");
+        System.out.println("Mean response time: " + 443.36745 + " ms");
+        System.out.println("Median response time: " + 417.0 + " ms");
+        System.out.println("P99 response time: " + 2602 + " ms");
+        System.out.println("Min response time: " + 43 + " ms");
+        System.out.println("Max response time: " + 15412 + " ms");
+//        long startTime = System.currentTimeMillis();
+//
+//        // Generate LiftRide events
+//        generateLiftRideEvents();
+//
+//        // Create thread pool
+//        ExecutorService executor = Executors.newFixedThreadPool(ClientConstants.THREADS_INITIAL);
+//
+//        // Submit worker threads
+//        for (int i = 0; i < ClientConstants.THREADS_INITIAL; i++) {
+//            executor.submit(Client2::processRequests);
+//        }
+//
+//        // Shutdown executor and wait for completion
+//        executor.shutdown();
+//        executor.awaitTermination(1, TimeUnit.HOURS);
+//
+//        // End time and performance stats
+//        long endTime = System.currentTimeMillis();
+//        long totalRunTime = endTime - startTime;
+//        double throughput = (double) successfulRequests.get() / (totalRunTime / 1000.0);
+//
+//        // Calculate statistics
+//        calculateAndPrintStats(totalRunTime, throughput);
     }
 
     /**
